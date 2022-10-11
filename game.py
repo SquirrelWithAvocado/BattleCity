@@ -1,4 +1,3 @@
-from telnetlib import GA
 import pygame
 from pygame.locals import *
 from battlefield import Battlefield
@@ -9,13 +8,12 @@ class Game:
 
     def __init__(self):
         pygame.init()
-        flags = RESIZABLE
+        #flags = RESIZABLE
 
-        
         Game.caption = "Battlecity: menu"
         pygame.display.set_caption(Game.caption)
         Game.clock = pygame.time.Clock()
-        Game.screen = pygame.display.set_mode((1280, 1024), flags)
+        Game.screen = pygame.display.set_mode((800, 800))
         Game.running = True
 
         self.render_menu()
@@ -49,7 +47,7 @@ class Game:
 
     def type_go_text(self):
         central_text = "Press 'g' to go on Battlefield"
-        text = Text(central_text, (640, 512), fontsize=64, color='white')
+        text = Text(central_text, (self.screen.get_rect().right / 2, self.screen.get_rect().bottom / 2), fontsize=64, color='white')
         text.draw(Game.screen)
 
     def do_shortcut(self, event):

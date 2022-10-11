@@ -1,23 +1,27 @@
+from matplotlib import collections
 import pygame
 from pygame.locals import *
+from bullet import Bullet
 
 class Player(pygame.sprite.Sprite):
     """Player functionality"""
 
     def __init__(
         self, 
-        screen, 
+        surface, 
         pos, 
-        image=r'images\player_tank1.png',
-        speed=5
+        tilemap,
+        image=r'images\player_tank1.2.png',
+        speed=5, 
     ):
-        self.screen = screen
-        self.screen_size = screen.get_size()
+        self.direction = [0, 0]
+        self.surface = surface
+        self.screen_size = surface.get_size()
         self.render(image)
 
         self.rect.center = pos
         self.speed = speed
-
+        self.tilemap = tilemap
 
         self.key_controls = {
             K_w: (0, -self.speed),
@@ -42,23 +46,56 @@ class Player(pygame.sprite.Sprite):
             K_LEFT: 90,
             K_RIGHT: 270
         }   
+
+        self.direction_dict = {
+            0: (0, -1),
+            180: (0, 1),
+            90: (-1, 0),
+            270: (1, 0)
+        }
+
+        self.shoot_delay = 240
+        self.shoot_timer = 0
+        self.shoot_turn = 1
     
+    def process_bullet_dir(self):
+        if abs(self.direction[0]) == 1:
+            self.py1, self.py2 = self.rect.center[1] - 8, self.rect.center[1] + 5
+            self.px1 = self.px2 = self.rect.center[0] + 20 * self.direction[0]
+        if abs(self.direction[1]) == 1:
+            self.px1, self.px2 = self.rect.center[0] - 8, self.rect.center[0] + 5
+            self.py1 = self.py2 = self.rect.center[1] + 20 * self.direction[1]
+
     def render(self, image):
         self.angle = 0
         self.image = pygame.image.load(image)
-        self.image.convert()
-
         self.rect = self.image.get_rect()
 
     def move(self, pressed_key):
         self.rect.move_ip(self.key_controls[pressed_key])
         self.rotate(pressed_key)
+        self.check_collisions()
         self.check_screen_border()
+
+    def check_collisions(self):
+        collision_tolerance = 10
+        for tile in self.tilemap.tiles:
+            if self.rect.colliderect(tile.rect) and tile.name != "grass":
+                if abs(self.rect.top - tile.rect.bottom) < collision_tolerance:
+                    self.rect.top = tile.rect.bottom
+                if abs(self.rect.bottom - tile.rect.top) < collision_tolerance:
+                    self.rect.bottom = tile.rect.top
+                if abs(self.rect.right - tile.rect.left) < collision_tolerance:
+                    self.rect.right = tile.rect.left
+                if abs(self.rect.left - tile.rect.right) < collision_tolerance:
+                    self.rect.left= tile.rect.right
 
     def rotate(self, key):
         self.dalgle = self.rotate_angles[key] - self.angle
         self.angle += self.dalgle
+        self.direction = self.direction_dict[self.angle]
         self.image = pygame.transform.rotate(self.image, self.dalgle)
+        self.rect = self.image.get_rect(center=self.rect.center)
 
     def check_screen_border(self):
         if self.rect.left < 0:
@@ -70,11 +107,18 @@ class Player(pygame.sprite.Sprite):
         if self.rect.bottom >= self.screen_size[1]:
             self.rect.bottom = self.screen_size[1]
 
-    def update(self):
-        self.screen.blit(self.image, self.rect)
+    def shoot(self):
+        if self.shoot_timer <= 0:
+            self.shoot_timer = self.shoot_delay
+            if self.shoot_turn == 1:
+                px, py = self.px1, self.py1
+            else:
+                px, py = self.px2, self.py2
+            self.shoot_turn *= -1
+            return Bullet(self, px, py, self.direction, 1, self.surface)    
 
-    def flip(self, x, y):
-        if not(self.rotation[0] and x):
-            self.surf = pygame.transform.flip(self.surf, x, y)
-        if not(self.rotation[1] and y):
-            self.surf = pygame.transform.flip(self.surf, x, y)
+    def update(self):
+        self.process_bullet_dir()
+        self.surface.blit(self.image, self.rect)
+        self.shoot_timer -= 1
+
