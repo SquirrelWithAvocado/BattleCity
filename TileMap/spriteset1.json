@@ -5,23 +5,23 @@
         {
             "x":0,
             "y":0,
-            "width":50,
-            "height":50
+            "width":26,
+            "height":26
         },
         "brickwall.png":
         {
             
-            "x":50,
+            "x":52,
             "y":0,
-            "width":50,
-            "height":50  
+            "width":26,
+            "height":26  
         },
         "water.png":
         {    
-            "x":100,
+            "x":78,
             "y":0,
-            "width":50,
-            "height":50 
+            "width":26,
+            "height":26 
         }
     }   
 }

@@ -9,11 +9,10 @@ class Tilemap:
     def __init__(self, filename, spriteset, surface):
         self.zero_x, self.zero_y = 0, 0
         self.spriteset = spriteset
-        self.tile_size = 50
+        self.tile_size = 26
         self.surface = surface
 
-        self.walls = []
-        self.tiles = self.load_tiles(filename)
+        self.load_tiles_csv(filename)
         self.map_surface = pygame.Surface((self.map_w, self.map_h))
         self.map_surface.set_colorkey((0, 0, 0))  
         self.load_map()
@@ -35,29 +34,36 @@ class Tilemap:
     
         return map
 
-    def load_tiles(self, filename):
-        tiles = []
-        map = self.read_csv(filename)
-        x, y = 0, 0
+    def load_tiles_csv(self, filename):
+        self.map = self.read_csv(filename)
+        self.load_tiles()
 
-        for row in map:
+    def load_tiles(self):
+        self.tiles = []
+        self.walls = []
+        self.grass = []
+
+        x, y = 0, 0
+        for row in self.map:
             x = 0
             for tile in row:
                 coords = (x * self.tile_size, y * self.tile_size)
                 if tile == '0':
-                    tiles.append(Tile("grass.png", coords, self.spriteset))
+                    tl = Tile("grass.png", coords, self.spriteset)
+                    self.tiles.append(tl)
+                    self.grass.append(tl)
                 elif tile == '1':
                     tl = Tile("brickwall.png", coords, self.spriteset)
-                    tiles.append(tl)
-                    self.walls.append(tl.rect)
+                    self.tiles.append(tl)
+                    self.walls.append(tl)
                 elif tile == '2':
-                    tiles.append(Tile("water.png", coords, self.spriteset))
+                    self.tiles.append(Tile("water.png", coords, self.spriteset))
                 elif tile == '3':
-                    tiles.append(Tile("", coords, self.spriteset))
+                    self.tiles.append(Tile("", coords, self.spriteset))
 
                 x += 1
             y += 1
-        
         self.map_w, self.map_h = x * self.tile_size, y * self.tile_size
-        return tiles
 
+    def enlarged_tilemap(self):
+        pass

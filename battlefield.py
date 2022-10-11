@@ -1,6 +1,8 @@
 import pygame
 from pygame.locals import *
-from player import Player
+from TileMap import tilemap
+from creatures.player import Player
+from creatures.easy_enemy import Easy_enemy
 from TileMap import *
 
 class Battlefield:
@@ -9,16 +11,17 @@ class Battlefield:
     def __init__(self, screen):
         pygame.init()
         self.screen = screen
-        self.game_surface = pygame.Surface((650, 650))
+        self.game_surface = pygame.Surface((676, 676))
         self.running = True
         self.clock = pygame.time.Clock()
- 
+
         self.caption = "Battlecity: battlefield"
         pygame.display.set_caption(self.caption)
 
         self.spriteset = Spriteset(r'TileMap\spriteset1.png')
-        self.tilemap = Tilemap(r'TileMap\maps\map_2.csv', self.spriteset, self.game_surface)
-        self.player = Player(self.game_surface, (50, 50), self.tilemap)
+        self.tilemap = Tilemap(r'TileMap\maps\map_3.csv', self.spriteset, self.game_surface)
+        self.player = Player(self.game_surface, (320, 530), self.tilemap)
+        self.enemy = Easy_enemy(self.game_surface, (120, 530), self.tilemap, self.player)
         self.bullets = []
         
 
@@ -34,17 +37,24 @@ class Battlefield:
             self.check_keys()
 
             self.screen.fill(Color('gray'))
-
-            self.screen.blit(self.game_surface, (50, 50))
+            
             self.tilemap.update_map()
             self.player.update()
-            
+            self.enemy.update()
+
             for bullet in self.bullets:
                 for tile in self.tilemap.walls:
-                    if bullet.rect.colliderect(tile):
+                    if bullet.rect.colliderect(tile.rect) and bullet in self.bullets and tile in self.tilemap.walls:                
+                        self.tilemap.walls.remove(tile)
                         self.bullets.remove(bullet)
+                        x, y = tile.rect.topleft[1] // 26, tile.rect.topleft[0] // 26 
+                        self.tilemap.map[x][y] = '0'
+                        self.tilemap.load_tiles()
+                        self.tilemap.load_map()
+                        
                 bullet.update()
 
+            self.screen.blit(self.game_surface, (50, 50))
             pygame.display.update()
 
             self.clock.tick(30)

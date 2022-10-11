@@ -6,7 +6,7 @@ class Tile(pygame.sprite.Sprite):
         self.name = image.replace('.png', '')
         self.rect = self.img.get_rect()
         self.rect.x, self.rect.y = coords
-        self.size = 50
+        self.size = 26
 
     def draw(self, surface):
         surface.blit(self.img, (self.rect.x, self.rect.y))

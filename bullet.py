@@ -42,5 +42,5 @@ class Bullet:
             self.rect.bottom = self.surface_size[1]
     
     def rotate(self): 
-        self.image = pygame.transform.rotate(self.image, self.angle_dict[self.direction])
+        self.image = pygame.transform.rotate(self.image, self.angle_dict[(self.direction[0], self.direction[1])])
         self.rect = self.image.get_rect(center=self.rect.center)
