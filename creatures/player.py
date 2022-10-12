@@ -14,6 +14,7 @@ class Player(Creature):
         tilemap,
         image=r'images\player_tank1.2.png',
         speed=5, 
+        hearts=2
     ):
         super().__init__(
             surface, 
@@ -26,6 +27,8 @@ class Player(Creature):
 
         self.name = 'Player'
         self.enemies = []
+        self.score = 0
+        self.hearts = hearts
 
         self.key_controls = {
             K_w: (0, -self.speed),

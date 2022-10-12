@@ -1,20 +1,28 @@
+from unittest import TestCase
+from matplotlib.widgets import EllipseSelector
 import pygame, random
 from pygame.locals import *
 from TileMap import tilemap
 from creatures.player import Player
-from creatures.easy_enemy import Easy_enemy
+from creatures.enemy import Enemy
 from creatures.eagle import Eagle
 from TileMap import *
+from text import Text
 
 class Battlefield:
     """Game battlefield"""
 
-    def __init__(self, screen, level):
+    def __init__(self, screen):
         pygame.init()
+
+        self.level = 3
+        self.heart_img = pygame.image.load(r'images\heart1.png')
+        self.enemy_icon = pygame.image.load(r'images\enemy_tank15.png')
         self.player_count = 1
-        self.level = level
+
         self.screen = screen
         self.game_surface = pygame.Surface((676, 676))
+        self.side_menu = pygame.Surface((676, 100))
         self.running = True
         self.clock = pygame.time.Clock()
         self.spawn_points = [(130, 30), (470, 30)]
@@ -24,15 +32,26 @@ class Battlefield:
         pygame.display.set_caption(self.caption)
         
         self.spriteset = Spriteset(r'TileMap\spriteset1.png')
+
+        self.load_map(self.level)
+
+        self.enemy_respawn_time = (190 - self.level * 4 - (self.player_count - 1) * 20) * 60
+        self.respawn_timer = self.enemy_respawn_time / 30
+
+    def load_map(self, level):
         self.tilemap = Tilemap(fr'TileMap\maps\map_{self.level}.csv', self.spriteset, self.game_surface)
         self.eagle = Eagle(self.game_surface, (338, 651))
         self.bullets = []
         self.enemies = []
         self.player = Player(self.game_surface, (320, 550), self.tilemap)
         self.enemy_limit = 10
-        self.enemy_respawn_time = (190 - self.level * 4 - (self.player_count - 1) * 20) * 60
-        self.respawn_timer = self.enemy_respawn_time / 30
-        
+        self.load_enemy_icon()
+        self.running = True
+
+        self.level = level
+        if self.level != 3:
+            self.run()
+
     def run(self):
         "Battlefield event loop"
         while self.running:
@@ -47,20 +66,52 @@ class Battlefield:
             self.screen.fill(Color('gray'))
 
             self.tilemap.update_map()
-            if self.player.is_alive:
-                self.player.update()
 
             if self.eagle.is_alive:
-                self.eagle.update()
-            self.update_enemies()
+                self.eagle.update()  
+            
+            if (not(self.player.is_alive) and self.player.hearts == 0 or not(self.eagle.is_alive)) and pygame.key.get_pressed()[K_SPACE]:
+                self.running = False
 
+            self.produce_end_text()
+
+            self.check_player_heath()
+            self.update_icons()
+            self.update_enemies()
             self.update_bullets()
             self.respawn_timer += 1
 
             self.screen.blit(self.game_surface, (50, 50))
+            self.update_side_menu()
             pygame.display.update()
 
             self.clock.tick(30)
+        
+        if not(self.player.is_alive) and self.player.hearts == 0 or not(self.eagle.is_alive):
+            self.load_map(self.level)
+
+    def check_player_heath(self):
+        if self.player.is_alive:
+            self.player.update()
+        else:
+            if self.player.hearts > 0:
+                self.player.hearts -= 1
+                self.player.is_alive = True
+                self.player.health = 1
+                self.player.rect.center = (320, 550)
+
+    def produce_end_text(self):
+            if not(self.player.is_alive) and self.player.hearts == 0 or not(self.eagle.is_alive):
+                Text("GAME OVER", (338, 338), fontsize=64, color='white').draw(self.game_surface)
+                Text("Press space to restart", (338, 378), fontsize=32, color='white').draw(self.game_surface)
+            if len(self.enemies) == 0 and self.enemy_limit == 0:
+                Text("YOU WIN", (338, 338), fontsize=64, color='white').draw(self.game_surface)
+                Text("Press space to go next level", (328, 378), fontsize=32, color='white').draw(self.game_surface)
+
+    def update_side_menu(self):
+        Text(f"Score: {self.player.score}", (100, 756), fontsize=32).draw(self.screen)
+        self.screen.blit(self.heart_img, (60, 780))
+        Text(f": {self.player.hearts}", (120, 795), fontsize=50).draw(self.screen)
 
     def update_enemies(self):
         print(f'\r{self.respawn_timer} :self.enemy_respawn_time{self.enemy_respawn_time}')
@@ -68,7 +119,7 @@ class Battlefield:
             self.respawn_timer = 0
             self.enemy_limit -= 1
             self.enemies.append(
-                Easy_enemy(
+                Enemy(
                     self.game_surface, 
                     self.spawn_points[self.spawn_point], 
                     self.tilemap, 
@@ -77,7 +128,8 @@ class Battlefield:
                     self.bullets, 
                     self.enemy_respawn_time, 
                     len(self.enemies),
-                    self.enemies
+                    self.enemies,
+                    1
                 )   
             )
             self.spawn_point = (self.spawn_point + 1) % 2
@@ -85,6 +137,8 @@ class Battlefield:
         for enemy in self.enemies:
             if not(enemy.is_alive):
                 self.enemies.remove(enemy)
+                self.enemy_icons.pop()
+                self.player.score += 100 * enemy.enemy_type
             enemy.update()
 
     def update_bullets(self):
@@ -128,3 +182,13 @@ class Battlefield:
             if self.pressed_keys[key]:
                 self.player.move(key)
                 break
+    
+    def load_enemy_icon(self):
+        self.enemy_icons = []
+        for i in range(self.enemy_limit):
+            self.enemy_icons.append(pygame.image.load('images\enemy_tank15.png'))
+        
+    
+    def update_icons(self):
+        for i in range(len(self.enemy_icons)):
+                self.screen.blit(self.enemy_icons[i], (170 + i % 5 * 20, 747 + i // 5 * 20))

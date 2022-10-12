@@ -4,7 +4,7 @@ from pygame.locals import *
 from creatures.creature import Creature
 from bullet import Bullet
 
-class Easy_enemy(Creature):
+class Enemy(Creature):
 
     def __init__(
         self, 
@@ -17,9 +17,11 @@ class Easy_enemy(Creature):
         respawn_time,
         id,
         enemies,
+        enemy_type,
         image=r'images\enemy_tank.png',
         speed=5, 
     ):
+        self.enemy_type = enemy_type
         self.image = pygame.image.load(image)
         self.rect = self.image.get_rect()
         super().__init__(
@@ -32,6 +34,7 @@ class Easy_enemy(Creature):
         )
 
         self.name = 'Enemy'
+        self.enemy_type = enemy_type
         self.id = id
         self.speed = 1
         self.enemies = enemies

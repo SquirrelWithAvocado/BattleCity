@@ -8,19 +8,19 @@ class Game:
 
     def __init__(self):
         pygame.init()
-        #flags = RESIZABLE
 
         Game.caption = "Battlecity: menu"
         pygame.display.set_caption(Game.caption)
+        
         Game.clock = pygame.time.Clock()
-        Game.screen = pygame.display.set_mode((800, 800))
+        Game.screen = pygame.display.set_mode((800, 900))
         Game.running = True
 
         self.render_menu()
 
         Game.keys_dict = {
             K_s: "print('Key press S')",
-            K_g: "Battlefield(Game.screen, 3).run()"
+            K_g: "Battlefield(Game.screen).run()"
         }
     
     def render_menu(self):
@@ -35,9 +35,8 @@ class Game:
                     Game.running = False
                 if event.type == KEYDOWN:
                     if event.key in Game.keys_dict:
-                        self.do_shortcut(event)
-                        pygame.display.set_caption(Game.caption)
-
+                        self.do_shortcut(event)    
+            
                 Game.screen.blit(Game.image, Game.screen.get_rect())
                 self.type_go_text()
                 pygame.display.update()
