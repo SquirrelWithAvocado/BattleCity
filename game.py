@@ -20,7 +20,7 @@ class Game:
 
         Game.keys_dict = {
             K_s: "print('Key press S')",
-            K_g: "Battlefield(Game.screen).run()"
+            K_g: "Battlefield(Game.screen, 3).run()"
         }
     
     def render_menu(self):

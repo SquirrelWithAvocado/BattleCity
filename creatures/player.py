@@ -85,6 +85,7 @@ class Player(Creature):
         self.rect = self.image.get_rect(center=self.rect.center)
 
     def update(self):
+        if self.health <= 0: self.is_alive = False
         self.process_bullet_dir()
         self.surface.blit(self.image, self.rect)
         self.shoot_timer -= 1
@@ -106,3 +107,13 @@ class Player(Creature):
         if abs(self.direction[1]) == 1:
             self.px1, self.px2 = self.rect.center[0] - 8, self.rect.center[0] + 5
             self.py1 = self.py2 = self.rect.center[1] + 20 * self.direction[1]
+    
+    def check_screen_border(self):
+        if self.rect.left < 0:
+            self.rect.left = 0
+        if self.rect.right > self.screen_size[0]:
+            self.rect.right = self.screen_size[0]
+        if self.rect.top <= 0:
+            self.rect.top = 0
+        if self.rect.bottom >= self.screen_size[1]:
+            self.rect.bottom = self.screen_size[1]

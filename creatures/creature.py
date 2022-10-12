@@ -16,6 +16,7 @@ class Creature(pygame.sprite.Sprite):
         health=1
     ):
         self.health = health
+        self.is_alive = True
 
         self.direction = [0, -1]
         self.surface = surface
@@ -55,14 +56,6 @@ class Creature(pygame.sprite.Sprite):
                 if abs(self.rect.left - tile.rect.right) < collision_tolerance:
                     self.rect.left= tile.rect.right
 
-    def check_screen_border(self):
-        if self.rect.left < 0:
-            self.rect.left = 0
-        if self.rect.right > self.screen_size[0]:
-            self.rect.right = self.screen_size[0]
-        if self.rect.top <= 0:
-            self.rect.top = 0
-        if self.rect.bottom >= self.screen_size[1]:
-            self.rect.bottom = self.screen_size[1]
+
 
  
