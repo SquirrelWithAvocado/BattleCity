@@ -92,6 +92,7 @@ class Player(Creature):
         self.process_bullet_dir()
         self.surface.blit(self.image, self.rect)
         self.shoot_timer -= 1
+        self.check_health()
     
     def shoot(self):
         if self.shoot_timer <= 0:
@@ -120,3 +121,11 @@ class Player(Creature):
             self.rect.top = 0
         if self.rect.bottom >= self.screen_size[1]:
             self.rect.bottom = self.screen_size[1]
+    
+    def check_health(self):
+        if not(self.is_alive):
+            if self.hearts > 0:
+                self.hearts -= 1
+                self.is_alive = True
+                self.health = 1
+                self.rect.center = (320, 550)

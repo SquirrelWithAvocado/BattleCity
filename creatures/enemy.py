@@ -1,4 +1,3 @@
-from matplotlib.widgets import EllipseSelector
 import pygame, random
 from pygame.locals import *
 from creatures.creature import Creature
@@ -13,22 +12,18 @@ class Enemy(Creature):
         tilemap,
         player,
         eagle,
-        bullets,
-        respawn_time,
         id,
-        enemies,
+        respawn_time,
         enemy_type,
-        image=r'images\enemy_tank.png',
+        filename=r'images\enemy_tank.png',
         speed=5, 
     ):
         self.enemy_type = enemy_type
-        self.image = pygame.image.load(image)
-        self.rect = self.image.get_rect()
         super().__init__(
             surface, 
             pos, 
             tilemap,
-            image,
+            filename,
             speed,
             health=1
         )
@@ -37,7 +32,6 @@ class Enemy(Creature):
         self.enemy_type = enemy_type
         self.id = id
         self.speed = 1
-        self.enemies = enemies
 
         self.respawn_time = respawn_time 
         self.cur_time = 0
@@ -47,7 +41,6 @@ class Enemy(Creature):
         self.shoot_delay = 30
         self.player = player
         self.eagle = eagle
-        self.bullets = bullets
 
         self.rotate_angles = {
             (0, -1): 0,
@@ -197,3 +190,8 @@ class Enemy(Creature):
         if self.rect.bottom >= self.screen_size[1]:
             self.rect.bottom = self.screen_size[1]
             self.invert_direction()
+
+class EnemyType:
+    LightEnemy = 1
+    RapidEnemy = 2
+    HeavyEnemy = 3

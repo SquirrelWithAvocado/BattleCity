@@ -38,9 +38,9 @@ class Creature(pygame.sprite.Sprite):
         self.shoot_timer = 0
         self.shoot_turn = 1
 
-    def render(self, image):
+    def render(self, filename):
         self.angle = 0
-        self.image = pygame.image.load(image)
+        self.image = pygame.image.load(filename)
         self.rect = self.image.get_rect()
 
     def check_collisions(self):
