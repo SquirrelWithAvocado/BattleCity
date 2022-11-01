@@ -11,7 +11,7 @@ class Eagle(Creature):
         self.is_alive = True
         self.image = pygame.image.load(image)
         self.rect = self.image.get_rect()
-        self.rect.center = pos
+        self.rect.topleft = pos
         self.health = 1
         self.name = 'Eagle'
         self.surface = surface

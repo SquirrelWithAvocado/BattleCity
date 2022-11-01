@@ -1,5 +1,6 @@
 import pygame, json
 
+
 class Spriteset:
     def __init__(self, file_path):
         self.file_path = file_path
@@ -11,8 +12,8 @@ class Spriteset:
 
     def get_sprite(self, x, y, width, height):
         sprite = pygame.Surface((width, height))
-        sprite.set_colorkey((0,0,0))
-        sprite.blit(self.sprite_sheet,(0, 0),(x, y, width, height))
+        sprite.set_colorkey((0, 0, 0))
+        sprite.blit(self.sprite_sheet, (0, 0), (x, y, width, height))
         return sprite
 
     def parse_sprite(self, name):

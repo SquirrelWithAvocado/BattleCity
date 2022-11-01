@@ -1,98 +1,56 @@
-from matplotlib import collections
 import pygame
-from pygame.locals import *
 from bullet import Bullet
 from creatures.creature import Creature
+from constants import (
+    KEY_CONTROLS as keys,
+    ROTATE_ANGLES as rotate_angles,
+    DIRECTION_DICT as direction_dict
+)
+
 
 class Player(Creature):
     """Player functionality"""
 
     def __init__(
-        self, 
-        surface, 
-        pos, 
-        tilemap,
-        image=r'images\player_tank1.2.png',
-        speed=5, 
-        hearts=2
+            self,
+            surface,
+            pos,
+            tilemap,
+            enemies,
+            image=r'images\player_tank1.2.png',
+            speed=5,
+            hearts=2
     ):
         super().__init__(
-            surface, 
-            pos, 
+            0,
+            'Player',
+            surface,
+            pos,
             tilemap,
             image,
             speed,
-            health=1 
+            health=1
         )
 
-        self.name = 'Player'
-        self.enemies = []
+        self.enemies = enemies
         self.score = 0
         self.hearts = hearts
 
-        self.key_controls = {
-            K_w: (0, -self.speed),
-            K_s: (0, self.speed),
-            K_a: (-self.speed, 0),
-            K_d: (self.speed, 0),
-
-            K_UP: (0, -self.speed),
-            K_DOWN: (0, self.speed),
-            K_LEFT: (-self.speed, 0),
-            K_RIGHT: (self.speed, 0)
-        }
-
-        self.rotate_angles = {
-            K_w: 0,
-            K_s: 180,
-            K_a: 90,
-            K_d: 270,
-
-            K_UP: 0,
-            K_DOWN: 180,
-            K_LEFT: 90,
-            K_RIGHT: 270
-        }   
-
     def move(self, pressed_key):
-        self.rect.move_ip(self.key_controls[pressed_key])
-        self.rotate(pressed_key)
+        self.rect.move_ip(keys[pressed_key])
+        self.rotate(rotate_angles[pressed_key])
         self.check_collisions()
-        self.check_screen_border()
 
     def check_collisions(self):
-        for tile in self.tilemap.tiles:
-            if self.rect.colliderect(tile.rect) and tile.name != "grass":
-                self.collisions(tile, collision_tolerance=10)
-    
-    def ckeck_enemy_collision(self):
+        self.check_tile_collision()
+        self.check_enemy_collision()
+        self.check_screen_border()
+
+    def check_enemy_collision(self):
         for enemy in self.enemies:
             if self.rect.colliderect(enemy.rect):
-                self.collisions(enemy, collision_tolerance=10)
-    
-    def collisions(self, obj, collision_tolerance):
-        if abs(self.rect.top - obj.rect.bottom) < collision_tolerance:
-            self.rect.top = obj.rect.bottom
-        if abs(self.rect.bottom - obj.rect.top) < collision_tolerance:
-            self.rect.bottom = obj.rect.top
-        if abs(self.rect.right - obj.rect.left) < collision_tolerance:
-            self.rect.right = obj.rect.left
-        if abs(self.rect.left - obj.rect.right) < collision_tolerance:
-            self.rect.left= obj.rect.right
+                self.process_collisions(enemy)
 
-    def rotate(self, key):
-        self.dalgle = self.rotate_angles[key] - self.angle
-        self.angle += self.dalgle
-        self.direction = self.direction_dict[self.angle]
-        self.image = pygame.transform.rotate(self.image, self.dalgle)
-        self.rect = self.image.get_rect(center=self.rect.center)
-
-    def update(self):
-        if self.health <= 0: self.is_alive = False
-        self.process_bullet_dir()
-        self.surface.blit(self.image, self.rect)
-        self.shoot_timer -= 1
-    
     def shoot(self):
         if self.shoot_timer <= 0:
             self.shoot_timer = self.shoot_delay
@@ -101,22 +59,20 @@ class Player(Creature):
             else:
                 px, py = self.px2, self.py2
             self.shoot_turn *= -1
-            return Bullet(self, px, py, self.direction, 1, self.surface)   
-    
-    def process_bullet_dir(self):
-        if abs(self.direction[0]) == 1:
-            self.py1, self.py2 = self.rect.center[1] - 8, self.rect.center[1] + 5
-            self.px1 = self.px2 = self.rect.center[0] + 20 * self.direction[0]
-        if abs(self.direction[1]) == 1:
-            self.px1, self.px2 = self.rect.center[0] - 8, self.rect.center[0] + 5
-            self.py1 = self.py2 = self.rect.center[1] + 20 * self.direction[1]
-    
-    def check_screen_border(self):
-        if self.rect.left < 0:
-            self.rect.left = 0
-        if self.rect.right > self.screen_size[0]:
-            self.rect.right = self.screen_size[0]
-        if self.rect.top <= 0:
-            self.rect.top = 0
-        if self.rect.bottom >= self.screen_size[1]:
-            self.rect.bottom = self.screen_size[1]
+            return Bullet(self, px, py, self.direction, 1, self.surface)
+
+    def respawn(self):
+        self.hearts -= 1
+        self.is_alive = True
+        self.health = 1
+        self.rect.center = (320, 550)
+
+    def update(self):
+        if self.health <= 0:
+            self.is_alive = False
+            if self.hearts > 0:
+                self.respawn()
+
+        self.process_bullet_dir()
+        self.surface.blit(self.image, self.rect)
+        self.shoot_timer -= 1

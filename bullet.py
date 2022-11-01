@@ -1,4 +1,5 @@
-import pygame, random
+import pygame
+
 
 class Bullet:
     def __init__(self, parent, px, py, direction, damage, surface):
@@ -8,10 +9,10 @@ class Bullet:
         self.image = pygame.image.load(r'images\bullet1.png')
         self.rect = self.image.get_rect()
 
-        self.rect.center =  (px, py)
+        self.rect.center = (px, py)
         self.damage = damage
         self.dx, self.dy = direction[0], direction[1]
-        self.direction = direction
+        self.direction = [direction[0], direction[1]]
 
         self.speed = 10
 
@@ -40,7 +41,14 @@ class Bullet:
             self.rect.top = 0
         if self.rect.bottom >= self.surface_size[1]:
             self.rect.bottom = self.surface_size[1]
-    
-    def rotate(self): 
+
+    def rotate(self):
+        self.normalize_direction()
         self.image = pygame.transform.rotate(self.image, self.angle_dict[(self.direction[0], self.direction[1])])
         self.rect = self.image.get_rect(center=self.rect.center)
+
+    def normalize_direction(self):
+        if self.direction[0] != 0:
+            self.direction[0] = self.direction[0] // abs(self.direction[0])
+        if self.direction[1] != 0:
+            self.direction[1] = self.direction[1] // abs(self.direction[1])

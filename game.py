@@ -2,6 +2,8 @@ import pygame
 from pygame.locals import *
 from battlefield import Battlefield
 from text import Text
+from constants import SCREEN_SIZE, KEYS_DICT
+
 
 class Game:
     """Single-window with multiple scenes."""
@@ -9,52 +11,54 @@ class Game:
     def __init__(self):
         pygame.init()
 
-        Game.caption = "Battlecity: menu"
-        pygame.display.set_caption(Game.caption)
-        
-        Game.clock = pygame.time.Clock()
-        Game.screen = pygame.display.set_mode((800, 900))
-        Game.running = True
+        self.set_decor()
 
-        self.render_menu()
+        self.clock = pygame.time.Clock()
+        self.screen = pygame.display.set_mode(SCREEN_SIZE)
+        self.running = True
 
-        Game.keys_dict = {
-            K_s: "print('Key press S')",
-            K_g: "Battlefield(Game.screen).run()"
-        }
-    
-    def render_menu(self):
-        Game.image = pygame.image.load(r'images\skinner.png')
-        Game.image.convert()
+        self.load_background()
+
+    def set_decor(self):
+        self.caption = "Battlecity: menu"
+        self.icon = pygame.image.load(r'images\icon.png')
+
+        pygame.display.set_caption(self.caption)
+        pygame.display.set_icon(self.icon)
+
+    def load_background(self):
+        self.image = pygame.image.load(r'images\skinner.png').convert()
+        self.image = pygame.transform.scale(self.image, SCREEN_SIZE)
 
     def run(self):
         """Main event loop."""
-        while Game.running:
+        while self.running:
             for event in pygame.event.get():
                 if event.type == QUIT:
-                    Game.running = False
+                    self.running = False
                 if event.type == KEYDOWN:
-                    if event.key in Game.keys_dict:
-                        self.do_shortcut(event)    
-            
-                Game.screen.blit(Game.image, Game.screen.get_rect())
-                self.type_go_text()
+                    if event.key in KEYS_DICT:
+                        self.do_shortcut(event)
+
+                self.screen.blit(self.image, self.screen.get_rect())
+
+                self.type_text(
+                    "Press 'g' to go on Battlefield",
+                    (self.screen.get_rect().right / 2, self.screen.get_rect().bottom / 2)
+                )
+
                 pygame.display.update()
-                Game.clock.tick(30)
+                self.clock.tick(30)
 
         pygame.quit()
 
-    def type_go_text(self):
-        central_text = "Press 'g' to go on Battlefield"
-        text = Text(central_text, (self.screen.get_rect().right / 2, self.screen.get_rect().bottom / 2), fontsize=64, color='white')
-        text.draw(Game.screen)
+    def type_text(self, text, coord):
+        text = Text(text, coord, fontsize=64, color='white')
+        text.draw(self.screen)
 
     def do_shortcut(self, event):
         """Execute combination"""
         k = event.key
 
-        if k in Game.keys_dict:
-            exec(Game.keys_dict[k])
-
-if __name__ == '__main__':
-    Game().run()
+        if k in KEYS_DICT:
+            exec(KEYS_DICT[k])
