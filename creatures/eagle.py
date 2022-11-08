@@ -1,12 +1,13 @@
 import pygame
 from creatures.creature import Creature
 
+
 class Eagle(Creature):
     def __init__(
-        self, 
-        surface, 
-        pos, 
-        image=r'images\eagle1.png',
+            self,
+            surface,
+            pos,
+            image=r'images\eagle1.png',
     ):
         self.is_alive = True
         self.image = pygame.image.load(image)

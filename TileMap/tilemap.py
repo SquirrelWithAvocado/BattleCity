@@ -19,9 +19,6 @@ class Tilemap:
         self.map_surface.set_colorkey((0, 0, 0))
         self.load_map()
 
-    def update_map(self):
-        self.surface.blit(self.map_surface, (0, 0))
-
     def get_all_tiles(self):
         result = list()
         for tile_list in self.tiles_dict.values():
@@ -84,3 +81,6 @@ class Tilemap:
 
     def get_eagle_spawn(self):
         return self.eagle_spawn
+
+    def update(self):
+        self.surface.blit(self.map_surface, (0, 0))

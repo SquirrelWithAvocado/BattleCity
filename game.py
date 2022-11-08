@@ -17,18 +17,22 @@ class Game:
         self.screen = pygame.display.set_mode(SCREEN_SIZE)
         self.running = True
 
+        self.image = self.load_background()
+
         self.load_background()
 
     def set_decor(self):
-        self.caption = "Battlecity: menu"
-        self.icon = pygame.image.load(r'images\icon.png')
+        caption = "Battlecity: menu"
+        icon = pygame.image.load(r'images\icon.png')
 
-        pygame.display.set_caption(self.caption)
-        pygame.display.set_icon(self.icon)
+        pygame.display.set_caption(caption)
+        pygame.display.set_icon(icon)
 
     def load_background(self):
-        self.image = pygame.image.load(r'images\skinner.png').convert()
-        self.image = pygame.transform.scale(self.image, SCREEN_SIZE)
+        image = pygame.image.load(r'images\skinner.png').convert()
+        image = pygame.transform.scale(image, SCREEN_SIZE)
+
+        return image
 
     def run(self):
         """Main event loop."""

@@ -13,7 +13,7 @@ class Creature(pygame.sprite.Sprite):
             name,
             surface,
             pos,
-            tilemap,
+            tile_map,
             image_path,
             speed,
             health=1
@@ -31,7 +31,7 @@ class Creature(pygame.sprite.Sprite):
 
         self.rect.topleft = pos
         self.speed = speed
-        self.tilemap = tilemap
+        self.tilemap = tile_map
 
         self.shoot_delay = 30
         self.shoot_timer = 0
@@ -95,3 +95,5 @@ class Creature(pygame.sprite.Sprite):
         if abs(self.direction[1]) == 1:
             self.px1, self.px2 = self.rect.center[0] - 8, self.rect.center[0] + 5
             self.py1 = self.py2 = self.rect.center[1] + 20 * self.direction[1]
+
+

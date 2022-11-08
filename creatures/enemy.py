@@ -17,7 +17,7 @@ class Enemy(Creature):
             self,
             surface,
             pos,
-            tilemap,
+            tile_map,
             player,
             eagle,
             bullets,
@@ -33,7 +33,7 @@ class Enemy(Creature):
             'Enemy',
             surface,
             pos,
-            tilemap,
+            tile_map,
             image_path,
             speed,
             health=1
@@ -135,7 +135,18 @@ class Enemy(Creature):
         self.shoot_turn *= -1
 
         self.bullets.append(
-            Bullet(self, px, py, self.direction, self.damage, self.surface)
+            Bullet(
+                self,
+                px,
+                py,
+                self.direction,
+                self.damage,
+                self.surface,
+                self.tilemap,
+                self.enemies,
+                self.player,
+                self.eagle
+            )
         )
 
     def update(self):

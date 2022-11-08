@@ -1,4 +1,5 @@
 import pygame
+from pygame.locals import *
 from bullet import Bullet
 from creatures.creature import Creature
 from constants import (
@@ -15,8 +16,10 @@ class Player(Creature):
             self,
             surface,
             pos,
-            tilemap,
+            tile_map,
             enemies,
+            bullets,
+            eagle,
             image=r'images\player_tank1.2.png',
             speed=5,
             hearts=2
@@ -26,13 +29,16 @@ class Player(Creature):
             'Player',
             surface,
             pos,
-            tilemap,
+            tile_map,
             image,
             speed,
             health=1
         )
 
+        self.damage = 1
+        self.bullets = bullets
         self.enemies = enemies
+        self.eagle = eagle
         self.score = 0
         self.hearts = hearts
 
@@ -59,7 +65,18 @@ class Player(Creature):
             else:
                 px, py = self.px2, self.py2
             self.shoot_turn *= -1
-            return Bullet(self, px, py, self.direction, 1, self.surface)
+            return Bullet(
+                self,
+                px,
+                py,
+                self.direction,
+                self.damage,
+                self.surface,
+                self.tilemap,
+                self.enemies,
+                self,
+                self.eagle
+            )
 
     def respawn(self):
         self.hearts -= 1
@@ -67,7 +84,21 @@ class Player(Creature):
         self.health = 1
         self.rect.center = (320, 550)
 
+    def check_keys(self):
+        pressed_keys = pygame.key.get_pressed()
+
+        for key in keys:
+            if pressed_keys[K_SPACE]:
+                bullet = self.shoot()
+                if bullet is not None:
+                    self.bullets.append(bullet)
+            if pressed_keys[key]:
+                self.move(key)
+                break
+
     def update(self):
+        self.check_keys()
+
         if self.health <= 0:
             self.is_alive = False
             if self.hearts > 0:
