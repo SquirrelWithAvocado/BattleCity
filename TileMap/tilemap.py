@@ -6,7 +6,7 @@ from TileMap.spriteset import Spriteset
 class Tilemap:
     """Tilmap system"""
 
-    def __init__(self, level, surface):
+    def __init__(self, map_num, surface):
         self.zero_x, self.zero_y = 0, 0
         self.spriteset = Spriteset(r'TileMap\spriteset.png')
         self.tile_size = 26
@@ -14,7 +14,7 @@ class Tilemap:
         self.enemy_spawns = []
         self.hero_spawn = (0, 0)
 
-        self.load_tiles_csv(fr'TileMap\maps\map_{level}.csv')
+        self.load_tiles_csv(fr'TileMap\maps\map_{map_num}.csv')
         self.map_surface = pygame.Surface((self.map_w, self.map_h))
         self.map_surface.set_colorkey((0, 0, 0))
         self.load_map()
@@ -45,7 +45,14 @@ class Tilemap:
         self.load_tiles()
 
     def load_tiles(self):
-        self.tiles_dict = {'walls': [], 'grass': [], 'water': []}
+        self.tiles_dict = {
+            'walls': [],
+            'grass': [],
+            'water': [],
+            'concrete': [],
+            'leaves': [],
+            'ice': []
+        }
 
         x, y = 0, 0
         for row in self.map:
@@ -67,6 +74,13 @@ class Tilemap:
                 elif tile == '5':
                     self.eagle_spawn = coords
                     self.tiles_dict['grass'].append(Tile("grass.png", coords, self.spriteset))
+                elif tile == '6':
+                    self.tiles_dict['concrete'].append(Tile("concrete.png", coords, self.spriteset))
+                elif tile == '7':
+                    self.tiles_dict['leaves'].append(Tile("leaves.png", coords, self.spriteset))
+                elif tile == '8':
+                    self.tiles_dict['ice'].append(Tile("ice.png", coords, self.spriteset))
+
                 x += 1
             y += 1
 

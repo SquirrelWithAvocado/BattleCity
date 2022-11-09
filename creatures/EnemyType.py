@@ -1,4 +1,5 @@
 class EnemyType:
     LightTank = 0
     RapidTank = 1
-    HeavyTank = 2
+    ShooterTank = 2
+    HeavyTank = 3

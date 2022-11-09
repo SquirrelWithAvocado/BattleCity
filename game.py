@@ -1,8 +1,12 @@
+import sys
+
 import pygame
 from pygame.locals import *
 from battlefield import Battlefield
-from text import Text
-from constants import SCREEN_SIZE, KEYS_DICT
+from UI.button import Button
+from mouse_handler import MouseHandler
+from UI.text import Text
+from constants import SCREEN_SIZE, KEYS_DICT, MENU_BUTTON_SIZE
 
 
 class Game:
@@ -19,7 +23,37 @@ class Game:
 
         self.image = self.load_background()
 
+        self.buttons_list = []
+        self.construct_buttons()
+
+        self.mouse_handler = MouseHandler(self.buttons_list, self.screen)
+
         self.load_background()
+
+    def construct_buttons(self):
+        self.buttons_list.append(
+            Button(
+                (SCREEN_SIZE[0] // 2 - 100, SCREEN_SIZE[1] // 2 - 100),
+                MENU_BUTTON_SIZE,
+                "Play",
+                on_click=lambda x: Battlefield(self.screen).run()
+            )
+        )
+        self.buttons_list.append(
+            Button(
+                (SCREEN_SIZE[0] // 2 - 100, SCREEN_SIZE[1] // 2 - 100 + 60),
+                MENU_BUTTON_SIZE,
+                "Settings"
+            )
+        )
+        self.buttons_list.append(
+            Button(
+                (SCREEN_SIZE[0] // 2 - 100, SCREEN_SIZE[1] // 2 - 100 + 120),
+                MENU_BUTTON_SIZE,
+                "Quit",
+                on_click=lambda x: sys.exit()
+            )
+        )
 
     def set_decor(self):
         caption = "Battlecity: menu"
@@ -29,7 +63,7 @@ class Game:
         pygame.display.set_icon(icon)
 
     def load_background(self):
-        image = pygame.image.load(r'images\skinner.png').convert()
+        image = pygame.image.load(r'images\tank_background_1.png').convert_alpha()
         image = pygame.transform.scale(image, SCREEN_SIZE)
 
         return image
@@ -46,10 +80,10 @@ class Game:
 
                 self.screen.blit(self.image, self.screen.get_rect())
 
-                self.type_text(
-                    "Press 'g' to go on Battlefield",
-                    (self.screen.get_rect().right / 2, self.screen.get_rect().bottom / 2)
-                )
+                for button in self.buttons_list:
+                    button.draw(self.screen)
+
+                self.mouse_handler.mouse_event(event.type, pygame.mouse.get_pos())
 
                 pygame.display.update()
                 self.clock.tick(30)

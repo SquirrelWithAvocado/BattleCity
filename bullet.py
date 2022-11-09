@@ -1,8 +1,10 @@
 import pygame
 
+from animation_parsing_methods import parse_animation
+
 
 class Bullet:
-    def __init__(self, parent, px, py, direction, damage, surface, tile_map, enemies, player, eagle):
+    def __init__(self, parent, coords, direction, damage, surface, tile_map, enemies, player, eagle):
         self.surface = surface
         self.surface_size = surface.get_size()
         self.parent = parent
@@ -14,12 +16,14 @@ class Bullet:
         self.player = player
         self.eagle = eagle
 
-        self.rect.center = (px, py)
+        self.rect.center = coords
         self.damage = damage
         self.dx, self.dy = direction[0], direction[1]
         self.direction = [direction[0], direction[1]]
 
         self.speed = 10
+        self.explosion_animation = parse_animation(r'images\bullet animation\explosion.png')
+        self.frame_counter = 0
 
         self.angle_dict = {
             (-1, 0): 90,
@@ -29,12 +33,6 @@ class Bullet:
         }
 
         self.rotate()
-
-    def update(self):
-        self.move_bullet()
-        self.check_surface_border()
-        self.surface.blit(self.image, self.rect)
-        self.check_collisions()
 
     def check_collisions(self):
         self.check_tile_collision()
@@ -56,6 +54,9 @@ class Bullet:
                 self.tile_map.map[x][y] = '0'
                 self.tile_map.load_tiles()
                 self.tile_map.load_map()
+            elif tile.name == 'concrete' and self.rect.colliderect(
+                    tile.rect) and tile in self.tile_map.tiles:
+                self.is_alive = False
 
     def check_enemy_collision(self):
         for enemy in self.enemies:
@@ -95,3 +96,19 @@ class Bullet:
             self.direction[0] = self.direction[0] // abs(self.direction[0])
         if self.direction[1] != 0:
             self.direction[1] = self.direction[1] // abs(self.direction[1])
+
+    def animate_explosion(self):
+        if -1 < self.frame_counter < len(self.explosion_animation):
+            self.surface.blit(self.explosion_animation[self.frame_counter], self.rect)
+            self.frame_counter += 1
+        else:
+            self.frame_counter = -1
+
+    def update(self):
+        if self.is_alive:
+            self.move_bullet()
+            self.check_surface_border()
+            self.surface.blit(self.image, self.rect)
+            self.check_collisions()
+        else:
+            self.animate_explosion()

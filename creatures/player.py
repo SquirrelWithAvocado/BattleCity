@@ -2,11 +2,8 @@ import pygame
 from pygame.locals import *
 from bullet import Bullet
 from creatures.creature import Creature
-from constants import (
-    KEY_CONTROLS as keys,
-    ROTATE_ANGLES as rotate_angles,
-    DIRECTION_DICT as direction_dict
-)
+from constants import ROTATE_ANGLES as rotate_angles
+from animation_parsing_methods import parse_animation
 
 
 class Player(Creature):
@@ -20,9 +17,9 @@ class Player(Creature):
             enemies,
             bullets,
             eagle,
-            image=r'images\player_tank1.2.png',
+            image=r'images\player animation\player_tank1.2.png',
             speed=5,
-            hearts=2
+            hearts=0
     ):
         super().__init__(
             0,
@@ -42,13 +39,32 @@ class Player(Creature):
         self.score = 0
         self.hearts = hearts
 
+        self.go_animation = parse_animation(r'images\player animation\animation_go.png')
+        self.go_animation_counter = 0
+
+        self.freeze_flag = False
+
+        self.keys = {
+            K_w: (0, -1),
+            K_s: (0, 1),
+            K_a: (-1, 0),
+            K_d: (1, 0),
+        }
+
     def move(self, pressed_key):
-        self.rect.move_ip(keys[pressed_key])
+        self.go_animation_counter = (self.go_animation_counter + 1) % len(self.go_animation)
+        self.angle = 0
+        self.image = self.go_animation[self.go_animation_counter]
+        self.rect.move_ip(
+            self.keys[pressed_key][0] * self.speed,
+            self.keys[pressed_key][1] * self.speed
+        )
         self.rotate(rotate_angles[pressed_key])
         self.check_collisions()
 
     def check_collisions(self):
         self.check_tile_collision()
+        self.check_ice_collisions()
         self.check_enemy_collision()
         self.check_screen_border()
 
@@ -57,6 +73,16 @@ class Player(Creature):
             if self.rect.colliderect(enemy.rect):
                 self.process_collisions(enemy)
 
+    def check_ice_collisions(self):
+        for ice in self.tilemap.tiles_dict['ice']:
+            if self.rect.colliderect(ice.rect) and not self.freeze_flag:
+                self.freeze_flag = True
+                self.speed -= 4
+                break
+        else:
+            self.freeze_flag = False
+            self.speed = self.nominal_speed
+
     def shoot(self):
         if self.shoot_timer <= 0:
             self.shoot_timer = self.shoot_delay
@@ -64,11 +90,12 @@ class Player(Creature):
                 px, py = self.px1, self.py1
             else:
                 px, py = self.px2, self.py2
+
+            coords = (px, py)
             self.shoot_turn *= -1
             return Bullet(
                 self,
-                px,
-                py,
+                coords,
                 self.direction,
                 self.damage,
                 self.surface,
@@ -87,7 +114,7 @@ class Player(Creature):
     def check_keys(self):
         pressed_keys = pygame.key.get_pressed()
 
-        for key in keys:
+        for key in self.keys:
             if pressed_keys[K_SPACE]:
                 bullet = self.shoot()
                 if bullet is not None:

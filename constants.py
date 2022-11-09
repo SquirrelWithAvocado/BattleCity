@@ -11,19 +11,6 @@ KEYS_DICT = {
     K_g: "Battlefield(self.screen).run()"
 }
 
-PLAYER_SPEED = 5
-
-KEY_CONTROLS = {
-    K_w: (0, -PLAYER_SPEED),
-    K_s: (0, PLAYER_SPEED),
-    K_a: (-PLAYER_SPEED, 0),
-    K_d: (PLAYER_SPEED, 0),
-
-    K_UP: (0, -PLAYER_SPEED),
-    K_DOWN: (0, PLAYER_SPEED),
-    K_LEFT: (-PLAYER_SPEED, 0),
-    K_RIGHT: (PLAYER_SPEED, 0)
-}
 
 ROTATE_ANGLES = {
     K_w: 0,
@@ -71,6 +58,14 @@ DIRECTION_DICT = {
     90: (-1, 0),
     270: (1, 0)
 }
+
+# health, speed, shoot_delay, path, points
+LIGHT_TANK_STAT = 1, 1, 30, r'images\enemy_tank_light.png', 100
+RAPID_TANK_STAT = 1, 2, 30, r'images\enemy_tank_rapid.png', 200
+SHOOTER_TANK_STAT = 1, 1, 45, r'images\enemy_tank_shooter.png', 300
+HEAVY_TANK_STAT = 4, 1, 30, r'images\enemy_tank_heavy.png', 400
+
+MENU_BUTTON_SIZE = (250, 40)
 
 PLAYER_RECT_SIZE = [40, 40]
 PLAYER_COLOR = (0, 255, 0)

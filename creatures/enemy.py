@@ -7,7 +7,12 @@ from constants import (
     ENEMY_SPEED,
     DIRECTIONS_LIST as directions,
     DIRECTION_DICT as direction_dict,
+    LIGHT_TANK_STAT,
+    RAPID_TANK_STAT,
+    SHOOTER_TANK_STAT,
+    HEAVY_TANK_STAT
 )
+from creatures.EnemyType import EnemyType
 from creatures.creature import Creature
 
 
@@ -24,22 +29,9 @@ class Enemy(Creature):
             respawn_time,
             enemies,
             enemy_type,
-            image_path=r'images\enemy_tank_.png',
-            speed=ENEMY_SPEED,
     ):
         self.enemy_type = enemy_type
-        super().__init__(
-            len(enemies),
-            'Enemy',
-            surface,
-            pos,
-            tile_map,
-            image_path,
-            speed,
-            health=1
-        )
 
-        self.enemy_type = enemy_type
         self.enemies = enemies
         self.damage = 1
 
@@ -47,18 +39,46 @@ class Enemy(Creature):
         self.cur_time = 0
         self.period = self.respawn_time / 8
 
-        self.shoot_delay = 30
+        self.health, self.speed, self.shoot_delay, self.img_path, self.points = self.choose_class()
+
+        super().__init__(
+            len(enemies),
+            'Enemy',
+            surface,
+            pos,
+            tile_map,
+            self.img_path,
+            self.speed,
+            self.health
+        )
+
         self.player = player
         self.eagle = eagle
         self.bullets = bullets
 
+    def choose_class(self):
+        if self.enemy_type == EnemyType.LightTank:
+            return LIGHT_TANK_STAT
+        elif self.enemy_type == EnemyType.RapidTank:
+            return RAPID_TANK_STAT
+        elif self.enemy_type == EnemyType.ShooterTank:
+            return SHOOTER_TANK_STAT
+        elif self.enemy_type == EnemyType.HeavyTank:
+            return HEAVY_TANK_STAT
+
     def move(self):
         if self.check_screen_border():
             self.invert_direction()
+
+        for concrete in self.tilemap.tiles_dict['concrete']:
+            if self.rect.colliderect(concrete.rect):
+                self.invert_direction()
+
         self.change_direction()
-        self.rect.move_ip(self.direction[0], self.direction[1])
+        self.rect.move_ip(self.direction[0] * self.speed, self.direction[1] * self.speed)
         x, y = self.process_rotate_coords()
         self.rotate(rotate_angles[x, y])
+
         self.check_collisions()
 
     def process_rotate_coords(self):
@@ -99,17 +119,17 @@ class Enemy(Creature):
         distance_x = abs(x - ex)
         distance_y = abs(y - ey)
 
-        if distance_x > 10:
-            dx = (x - ex) / distance_x
-            self.direction = [dx * self.speed, 0]
-
-        elif distance_y > 10:
-            dy = (y - ey) / distance_y
-            self.direction = [0, dy * self.speed]
+        if self.cur_time % 40 > 30:
+            if distance_x > 10:
+                dx = (x - ex) / distance_x
+                self.direction = [dx, 0]
+        else:
+            if distance_y > 10:
+                dy = (y - ey) / distance_y
+                self.direction = [0, dy]
 
     def check_collisions(self):
-        if self.check_tile_collision():
-            self.set_rnd_dir()
+        self.check_tile_collision()
         self.check_player_collision()
         self.check_another_enemy_collision()
 
@@ -132,13 +152,14 @@ class Enemy(Creature):
             px, py = self.px1, self.py1
         else:
             px, py = self.px2, self.py2
+
+        coords = (px, py)
         self.shoot_turn *= -1
 
         self.bullets.append(
             Bullet(
                 self,
-                px,
-                py,
+                coords,
                 self.direction,
                 self.damage,
                 self.surface,

@@ -16,7 +16,7 @@ class Creature(pygame.sprite.Sprite):
             tile_map,
             image_path,
             speed,
-            health=1
+            health
     ):
         self.health = health
         self.is_alive = True
@@ -30,6 +30,7 @@ class Creature(pygame.sprite.Sprite):
         self.render(image_path)
 
         self.rect.topleft = pos
+        self.nominal_speed = speed
         self.speed = speed
         self.tilemap = tile_map
 
@@ -42,6 +43,7 @@ class Creature(pygame.sprite.Sprite):
     def render(self, image_path):
         self.angle = 0
         self.image = pygame.image.load(image_path)
+        self.nominal_image = self.image.copy()
         self.rect = self.image.get_rect()
 
     def rotate(self, angle):
@@ -53,7 +55,8 @@ class Creature(pygame.sprite.Sprite):
 
     def check_tile_collision(self):
         for tile in self.tilemap.tiles:
-            if self.rect.colliderect(tile.rect) and tile.name != "grass":
+            if self.rect.colliderect(tile.rect) and tile.name != "grass" and tile.name != "ice":
+                self.speed = self.nominal_speed
                 return self.process_collisions(tile)
 
     def process_collisions(self, obj):
@@ -95,5 +98,3 @@ class Creature(pygame.sprite.Sprite):
         if abs(self.direction[1]) == 1:
             self.px1, self.px2 = self.rect.center[0] - 8, self.rect.center[0] + 5
             self.py1 = self.py2 = self.rect.center[1] + 20 * self.direction[1]
-
-
