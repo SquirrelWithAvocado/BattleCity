@@ -1,7 +1,7 @@
 import pygame
 
 from UI.cursor import Cursor
-from hole import Hole
+from UI.hole import Hole
 
 
 class MouseHandler:

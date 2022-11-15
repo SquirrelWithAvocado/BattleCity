@@ -5,7 +5,7 @@ class Cursor:
     def __init__(self, surface):
         self.surface = surface
 
-        big_image = pygame.image.load(r'images/cursor_2.png').convert_alpha()
+        big_image = pygame.image.load(r'images/UI images/cursor_2.png').convert_alpha()
 
         self.cursor_shift = 20
         self.cursor = pygame.transform.scale(big_image, (40, 40))

@@ -3,15 +3,33 @@ import pygame
 
 
 class Bonus:
-    def __init__(self, surface, player):
-        self.image = pygame.image.load(r'images\speed_bonus.png')
+    def __init__(self, surface, player, img_path):
+        self.image = pygame.image.load(img_path)
         self.rect = self.image.get_rect()
         self.surface = surface
         self.player = player
 
         self.picked = False
-        self.timer = 30
+        self.timer = 10
         self.spawn()
+
+    def on_pick(self):
+        pass
+
+    def spawn(self):
+        size = self.surface.get_rect().size
+        self.rect.center = (random.randint(0, size[0]), random.randint(0, size[1]))
+
+    def update(self):
+        if not self.picked:
+            self.surface.blit(self.image, self.rect)
+        else:
+            self.on_pick()
+
+
+class SpeedBonus(Bonus):
+    def __init__(self, surface, player):
+        super().__init__(surface, player, r'images\bonuses\speed_bonus.png')
 
     def on_pick(self):
         if not self.picked:
@@ -23,12 +41,30 @@ class Bonus:
             else:
                 self.timer -= 1
 
-    def spawn(self):
-        size = self.surface.get_rect().size
-        self.rect.center = (random.randint(0, size[0]), random.randint(0, size[1]))
+
+class HeartBonus(Bonus):
+    def __init__(self, surface, player):
+        super().__init__(surface, player, r'images\bonuses\heart.png')
+
+    def on_pick(self):
+        if not self.picked:
+            self.player.hearts += 1
+            self.picked = True
 
     def update(self):
         if not self.picked:
             self.surface.blit(self.image, self.rect)
-        else:
-            self.on_pick()
+
+
+class PowerShootingBonus(Bonus):
+    def __init__(self, surface, player):
+        super().__init__(surface, player, r'images\bonuses\projectile.png')
+
+    def on_pick(self):
+        if not self.picked:
+            self.player.super_shooting_times = 2
+            self.picked = True
+
+    def update(self):
+        if not self.picked:
+            self.surface.blit(self.image, self.rect)

@@ -4,7 +4,7 @@ from animation_parsing_methods import parse_animation
 
 
 class Bullet:
-    def __init__(self, parent, coords, direction, damage, surface, tile_map, enemies, player, eagle):
+    def __init__(self, parent, coords, direction, damage, surface, tile_map, enemies, player, eagle, super_bullet):
         self.surface = surface
         self.surface_size = surface.get_size()
         self.parent = parent
@@ -20,6 +20,8 @@ class Bullet:
         self.damage = damage
         self.dx, self.dy = direction[0], direction[1]
         self.direction = [direction[0], direction[1]]
+
+        self.super_bullet = super_bullet
 
         self.speed = 10
         self.explosion_animation = parse_animation(r'images\bullet animation\explosion.png')
@@ -46,7 +48,7 @@ class Bullet:
 
     def check_tile_collision(self):
         for tile in self.tile_map.tiles:
-            if tile.name == 'brickwall' and self.rect.colliderect(
+            if tile.name == 'walls' and self.rect.colliderect(
                     tile.rect) and tile in self.tile_map.tiles:
                 self.tile_map.tiles.remove(tile)
                 self.is_alive = False
@@ -54,9 +56,12 @@ class Bullet:
                 self.tile_map.map[x][y] = '0'
                 self.tile_map.load_tiles()
                 self.tile_map.load_map()
-            elif tile.name == 'concrete' and self.rect.colliderect(
-                    tile.rect) and tile in self.tile_map.tiles:
-                self.is_alive = False
+            elif tile.name == 'concrete':
+                if self.rect.colliderect(tile.rect) and tile in self.tile_map.tiles:
+                    self.is_alive = False
+                    if self.super_bullet:
+                        x, y = tile.rect.topleft[1] // 26, tile.rect.topleft[0] // 26
+                        self.tile_map.map[x][y] = '0'
 
     def check_enemy_collision(self):
         for enemy in self.enemies:

@@ -17,6 +17,7 @@ class Player(Creature):
             enemies,
             bullets,
             eagle,
+            bonuses,
             image=r'images\player animation\player_tank1.2.png',
             speed=5,
             hearts=0
@@ -35,9 +36,12 @@ class Player(Creature):
         self.damage = 1
         self.bullets = bullets
         self.enemies = enemies
+        self.bonuses = bonuses
         self.eagle = eagle
         self.score = 0
         self.hearts = hearts
+
+        self.super_shooting_times = 0
 
         self.go_animation = parse_animation(r'images\player animation\animation_go.png')
         self.go_animation_counter = 0
@@ -66,7 +70,13 @@ class Player(Creature):
         self.check_tile_collision()
         self.check_ice_collisions()
         self.check_enemy_collision()
+        self.check_bonus_collisions()
         self.check_screen_border()
+
+    def check_bonus_collisions(self):
+        for bonus in self.bonuses:
+            if self.rect.colliderect(bonus.rect):
+                bonus.on_pick()
 
     def check_enemy_collision(self):
         for enemy in self.enemies:
@@ -93,6 +103,12 @@ class Player(Creature):
 
             coords = (px, py)
             self.shoot_turn *= -1
+
+            super_shooting = False
+            if self.super_shooting_times > 0:
+                self.super_shooting_times -= 1
+                super_shooting = True
+
             return Bullet(
                 self,
                 coords,
@@ -102,7 +118,8 @@ class Player(Creature):
                 self.tilemap,
                 self.enemies,
                 self,
-                self.eagle
+                self.eagle,
+                super_shooting
             )
 
     def respawn(self):

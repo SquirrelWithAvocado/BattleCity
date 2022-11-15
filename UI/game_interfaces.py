@@ -5,8 +5,8 @@ from UI.text import Text
 
 class SideMenu:
     def __init__(self, player, screen, enemy_limit):
-        self.enemy_icon = pygame.image.load(r'images/enemy_tank.png')
-        self.heart_img = pygame.image.load(r'images/heart.png')
+        self.enemy_icon = pygame.image.load(r'images/enemy_tanks/enemy_tank.png')
+        self.heart_img = pygame.image.load(r'images/bonuses/heart.png')
         self.enemy_limit = enemy_limit
         self.player = player
         self.screen = screen

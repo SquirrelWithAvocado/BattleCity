@@ -4,7 +4,7 @@ import pygame
 from pygame.locals import *
 from battlefield import Battlefield
 from UI.button import Button
-from mouse_handler import MouseHandler
+from UI.mouse_handler import MouseHandler
 from UI.text import Text
 from constants import SCREEN_SIZE, KEYS_DICT, MENU_BUTTON_SIZE
 
@@ -15,11 +15,13 @@ class Game:
     def __init__(self):
         pygame.init()
 
-        self.set_decor()
-
         self.clock = pygame.time.Clock()
         self.screen = pygame.display.set_mode(SCREEN_SIZE)
         self.running = True
+
+        pygame.mixer.music.load('sound_effects\main theme.mp3')
+
+        self.set_decor()
 
         self.image = self.load_background()
 
@@ -36,14 +38,7 @@ class Game:
                 (SCREEN_SIZE[0] // 2 - 100, SCREEN_SIZE[1] // 2 - 100),
                 MENU_BUTTON_SIZE,
                 "Play",
-                on_click=lambda x: Battlefield(self.screen).run()
-            )
-        )
-        self.buttons_list.append(
-            Button(
-                (SCREEN_SIZE[0] // 2 - 100, SCREEN_SIZE[1] // 2 - 100 + 60),
-                MENU_BUTTON_SIZE,
-                "Settings"
+                on_click=lambda x: Battlefield(self.screen, 1).run()
             )
         )
         self.buttons_list.append(
@@ -57,19 +52,20 @@ class Game:
 
     def set_decor(self):
         caption = "Battlecity: menu"
-        icon = pygame.image.load(r'images\icon.png')
+        icon = pygame.image.load(r'images\UI images\icon.png').convert_alpha()
 
         pygame.display.set_caption(caption)
         pygame.display.set_icon(icon)
 
     def load_background(self):
-        image = pygame.image.load(r'images\tank_background_1.png').convert_alpha()
+        image = pygame.image.load(r'images\UI images\tank_background_1.png').convert_alpha()
         image = pygame.transform.scale(image, SCREEN_SIZE)
 
         return image
 
     def run(self):
         """Main event loop."""
+        pygame.mixer.music.play(-1)
         while self.running:
             for event in pygame.event.get():
                 if event.type == QUIT:

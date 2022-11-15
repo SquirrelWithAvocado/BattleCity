@@ -13,6 +13,7 @@ class Tilemap:
         self.surface = surface
         self.enemy_spawns = []
         self.hero_spawn = (0, 0)
+        self.eagle_spawn = (1, 1)
 
         self.load_tiles_csv(fr'TileMap\maps\map_{map_num}.csv')
         self.map_surface = pygame.Surface((self.map_w, self.map_h))
@@ -62,7 +63,7 @@ class Tilemap:
                 if tile == '0':
                     self.tiles_dict['grass'].append(Tile("grass.png", coords, self.spriteset))
                 elif tile == '1':
-                    self.tiles_dict['walls'].append(Tile("brickwall.png", coords, self.spriteset))
+                    self.tiles_dict['walls'].append(Tile("walls.png", coords, self.spriteset))
                 elif tile == '2':
                     self.tiles_dict['water'].append(Tile("water.png", coords, self.spriteset))
                 elif tile == '3':

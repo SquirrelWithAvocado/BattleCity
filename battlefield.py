@@ -1,7 +1,7 @@
 import pygame
 from pygame.locals import *
 
-from bonus import Bonus
+from bonus import Bonus, SpeedBonus, HeartBonus, PowerShootingBonus
 from creatures import (
     EnemyType,
     Player,
@@ -22,24 +22,35 @@ from constants import (
 class Battlefield:
     """Game battlefield"""
 
-    def __init__(self, screen):
+    def __init__(self, screen, level):
         pygame.init()
 
-        self.level = 3
-        self.player_count = 1
-        self.enemy_spawn_order = 0
-
-        self.background = pygame.image.load(r'images\tank_background_1.png').convert_alpha()
-        self.game_surface = pygame.Surface(GAME_SURFACE_SIZE)
+        self.level = level
 
         self.screen = screen
-        self.running = True
-        self.game_over = False
-        self.clock = pygame.time.Clock()
-        self.enemy_limit = 10
-
+        self.background = pygame.image.load(r'images\UI images\tank_background_1.png').convert_alpha()
+        self.game_surface = pygame.Surface(GAME_SURFACE_SIZE)
         pygame.display.set_caption("Battlecity: battlefield")
 
+        self.set_game_objects()
+        self.set_game_flags()
+
+        self.clock = pygame.time.Clock()
+
+        self.side_menu = SideMenu(self.player, self.screen, self.enemy_limit)
+
+        self.enemy_respawn_time = self.get_enemy_respawn_time()
+        self.respawn_timer = self.enemy_respawn_time / 30
+
+    def set_game_flags(self):
+        self.player_count = 1
+        self.enemy_spawn_order = 0
+        self.running = True
+        self.game_over = False
+        self.game_win = False
+        self.enemy_limit = 10
+
+    def set_game_objects(self):
         self.tile_map_layer_one = Tilemap(str(self.level) + '_1', self.game_surface)
         self.enemy_spawns = self.tile_map_layer_one.get_enemy_spawns()
         self.hero_spawn = self.tile_map_layer_one.get_player_spawn()
@@ -50,7 +61,7 @@ class Battlefield:
         self.bullets = []
         self.enemies = []
         self.bonuses = []
-        self.enemy_types = [0, 0, 0, 0, 1, 1, 2, 2, 3, 3]
+        self.enemy_types = [3, 0, 0, 0, 1, 1, 2, 2, 3, 3]
 
         self.eagle = Eagle(self.game_surface, self.eagle_spawn)
 
@@ -60,16 +71,14 @@ class Battlefield:
             self.tile_map_layer_one,
             self.enemies,
             self.bullets,
-            self.eagle
+            self.eagle,
+            self.bonuses
         )
 
-        self.side_menu = SideMenu(self.player, self.screen, self.enemy_limit)
-
-        self.enemy_respawn_time = self.get_enemy_respawn_time()
-        self.respawn_timer = self.enemy_respawn_time / 30
-
     def get_enemy_respawn_time(self):
-        return (190 - self.level * 4 - (self.player_count - 1) * 20) * 60
+        if self.level != 'test':
+            return (190 - self.level * 4 - (self.player_count - 1) * 20) * 60
+        return 100
 
     def run(self):
         """Battlefield event loop"""
@@ -102,13 +111,13 @@ class Battlefield:
         self.update_enemies()
         self.update_bullets()
 
+        for bonus in self.bonuses:
+            bonus.update()
+
         self.tile_map_layer_two.update()
 
         self.screen.blit(self.game_surface, (50, 50))
         self.side_menu.update()
-
-        for bonus in self.bonuses:
-            bonus.update()
 
         pygame.display.update()
 
@@ -121,7 +130,14 @@ class Battlefield:
     def restart_battlefield(self):
         pressed_keys = pygame.key.get_pressed()
         if pressed_keys[pygame.K_r] and self.game_over:
-            self.__init__(self.screen)
+            self.__init__(self.screen, 1)
+
+    def go_next_level(self):
+        pressed_keys = pygame.key.get_pressed()
+        if self.level == 4:
+            self.running = False
+        elif pressed_keys[pygame.K_n] and self.game_win:
+            self.__init__(self.screen, self.level + 1)
 
     def produce_end_text(self):
         if not self.player.is_alive and self.player.hearts == 0 or not self.eagle.is_alive:
@@ -132,7 +148,9 @@ class Battlefield:
 
         elif len(self.enemies) == 0 and self.enemy_limit == 0:
             Text("YOU WIN", (338, 338), fontsize=64, color='white').draw(self.game_surface)
-            Text("Press space to go next level", (328, 378), fontsize=32, color='white').draw(self.game_surface)
+            Text("Press n to go next level", (328, 378), fontsize=32, color='white').draw(self.game_surface)
+            self.game_win = True
+            self.go_next_level()
 
     def update_enemies(self):
         self.spawn_enemy()
@@ -144,7 +162,15 @@ class Battlefield:
                     self.player.score += self.enemies[i].points
                     self.enemies.pop(i)
                     self.side_menu.enemy_icons.pop()
-                    self.bonuses.append(Bonus(self.game_surface, self.player))
+                    self.spawn_bonus()
+
+    def spawn_bonus(self):
+        if self.enemy_limit % 3 == 0:
+            self.bonuses.append(PowerShootingBonus(self.game_surface, self.player))
+        elif self.enemy_limit % 2 == 0:
+            self.bonuses.append(HeartBonus(self.game_surface, self.player))
+        else:
+            self.bonuses.append(SpeedBonus(self.game_surface, self.player))
 
     def spawn_enemy(self):
         if self.respawn_timer >= self.enemy_respawn_time / 30 and self.enemy_limit > 0:

@@ -121,11 +121,11 @@ class Enemy(Creature):
 
         if self.cur_time % 40 > 30:
             if distance_x > 10:
-                dx = (x - ex) / distance_x
+                dx = int((x - ex) / distance_x)
                 self.direction = [dx, 0]
         else:
             if distance_y > 10:
-                dy = (y - ey) / distance_y
+                dy = int((y - ey) / distance_y)
                 self.direction = [0, dy]
 
     def check_collisions(self):
@@ -143,6 +143,7 @@ class Enemy(Creature):
             if self.rect.colliderect(enemy.rect):
                 if self.process_collisions(enemy):
                     self.set_rnd_dir()
+                    return True
 
     def invert_direction(self):
         self.direction = [-self.direction[0], -self.direction[1]]
@@ -166,7 +167,8 @@ class Enemy(Creature):
                 self.tilemap,
                 self.enemies,
                 self.player,
-                self.eagle
+                self.eagle,
+                False
             )
         )
 

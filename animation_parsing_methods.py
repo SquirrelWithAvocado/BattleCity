@@ -19,4 +19,5 @@ def parse_animation(filepath):
 def get_sprite(x, y, width, height, big_image):
     sprite = pygame.Surface((width, height), pygame.SRCALPHA)
     sprite.blit(big_image, (0, 0), (x, y, width, height))
+
     return sprite

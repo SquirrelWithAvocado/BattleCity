@@ -8,7 +8,7 @@ SCREEN_WIDTH, SCREEN_HEIGHT = SCREEN_SIZE
 
 KEYS_DICT = {
     K_s: "print('Key press S')",
-    K_g: "Battlefield(self.screen).run()"
+    K_g: "Battlefield(self.screen, 1).run()"
 }
 
 
@@ -60,12 +60,12 @@ DIRECTION_DICT = {
 }
 
 # health, speed, shoot_delay, path, points
-LIGHT_TANK_STAT = 1, 1, 30, r'images\enemy_tank_light.png', 100
-RAPID_TANK_STAT = 1, 2, 30, r'images\enemy_tank_rapid.png', 200
-SHOOTER_TANK_STAT = 1, 1, 45, r'images\enemy_tank_shooter.png', 300
-HEAVY_TANK_STAT = 4, 1, 30, r'images\enemy_tank_heavy.png', 400
+LIGHT_TANK_STAT = 1, 1, 30, r'images\enemy_tanks\enemy_tank_light.png', 100
+RAPID_TANK_STAT = 1, 2, 30, r'images\enemy_tanks\enemy_tank_rapid.png', 200
+SHOOTER_TANK_STAT = 1, 1, 45, r'images\enemy_tanks\enemy_tank_shooter.png', 300
+HEAVY_TANK_STAT = 4, 1, 30, r'images\enemy_tanks\enemy_tank_heavy.png', 400
 
-MENU_BUTTON_SIZE = (250, 40)
+MENU_BUTTON_SIZE = (250, 80)
 
 PLAYER_RECT_SIZE = [40, 40]
 PLAYER_COLOR = (0, 255, 0)
