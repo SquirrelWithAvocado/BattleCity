@@ -1,9 +1,9 @@
 import pygame
 from pygame.locals import *
 
-from bonus import Bonus, SpeedBonus, HeartBonus, PowerShootingBonus
-from creatures import (
-    EnemyType,
+from extra_modules.sound_config import SOUND_PARAMS
+from game_objects.bonus import SpeedBonus, HeartBonus, PowerShootingBonus
+from game_objects.creatures import (
     Player,
     Enemy,
     Eagle
@@ -13,9 +13,8 @@ from TileMap import Tilemap
 from UI.game_interfaces import SideMenu
 from UI.text import Text
 
-from constants import (
+from extra_modules.constants import (
     GAME_SURFACE_SIZE,
-    GRAY,
 )
 
 
@@ -31,6 +30,8 @@ class Battlefield:
         self.background = pygame.image.load(r'images\UI images\tank_background_1.png').convert_alpha()
         self.game_surface = pygame.Surface(GAME_SURFACE_SIZE)
         pygame.display.set_caption("Battlecity: battlefield")
+        self.escape_text = Text("Esc: выход в главное меню", (200, 20), fontsize=32, color=pygame.Color('white'))
+        self.load_music()
 
         self.set_game_objects()
         self.set_game_flags()
@@ -41,6 +42,12 @@ class Battlefield:
 
         self.enemy_respawn_time = self.get_enemy_respawn_time()
         self.respawn_timer = self.enemy_respawn_time / 30
+
+    def load_music(self):
+        pygame.mixer.music.stop()
+        pygame.mixer.music.load(fr'sound_effects\themes\{self.level}.mp3')
+        pygame.mixer.music.set_volume(0.05)
+        pygame.mixer.music.play(-1)
 
     def set_game_flags(self):
         self.player_count = 1
@@ -61,7 +68,7 @@ class Battlefield:
         self.bullets = []
         self.enemies = []
         self.bonuses = []
-        self.enemy_types = [3, 0, 0, 0, 1, 1, 2, 2, 3, 3]
+        self.enemy_types = [0, 0, 0, 0, 1, 1, 2, 2, 3, 3]
 
         self.eagle = Eagle(self.game_surface, self.eagle_spawn)
 
@@ -88,7 +95,8 @@ class Battlefield:
                 if event.type == QUIT:
                     self.running = False
                 elif event.type == KEYDOWN:
-                    continue
+                    if pygame.key.get_pressed()[K_ESCAPE]:
+                        self.running = False
 
             self.update_objects()
 
@@ -96,9 +104,15 @@ class Battlefield:
 
             self.clock.tick(30)
 
+        pygame.mixer.music.stop()
+        pygame.mixer.music.load('sound_effects\main theme.mp3')
+        pygame.mixer.music.set_volume(min(SOUND_PARAMS['general'], SOUND_PARAMS['music']))
+        pygame.mixer.music.play(-1)
+
     def update_objects(self):
         self.screen.blit(self.background, self.screen.get_rect())
         self.tile_map_layer_one.update()
+        self.escape_text.draw(self.screen)
 
         if self.eagle.is_alive:
             self.eagle.update()

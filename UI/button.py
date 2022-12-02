@@ -6,6 +6,7 @@ class Button:
     def __init__(self, coords, scale, text, on_click=lambda x: None):
         self.color = 'white'
         self.on_click = on_click
+        self.is_active = True
 
         x, y = coords[0], coords[1]
         w, h = scale[0], scale[1]

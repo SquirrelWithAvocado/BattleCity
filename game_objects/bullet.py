@@ -1,17 +1,19 @@
 import pygame
 
-from animation_parsing_methods import parse_animation
+from extra_modules.animation_parsing_methods import parse_animation
 
 
 class Bullet:
     def __init__(self, parent, coords, direction, damage, surface, tile_map, enemies, player, eagle, super_bullet):
         self.surface = surface
         self.surface_size = surface.get_size()
+
         self.parent = parent
         self.tile_map = tile_map
-        self.image = pygame.image.load(r'images\bullet1.png')
+        self.image = pygame.image.load(r'images/bullet1.png')
         self.rect = self.image.get_rect()
         self.is_alive = True
+
         self.enemies = enemies
         self.player = player
         self.eagle = eagle
@@ -24,7 +26,7 @@ class Bullet:
         self.super_bullet = super_bullet
 
         self.speed = 10
-        self.explosion_animation = parse_animation(r'images\bullet animation\explosion.png')
+        self.explosion_animation = parse_animation(r'images/bullet animation/explosion.png')
         self.frame_counter = 0
 
         self.angle_dict = {

@@ -1,7 +1,5 @@
 import pygame
-from pygame.locals import *
-from bullet import Bullet
-from constants import DIRECTION_DICT as direction_dict
+from extra_modules.constants import DIRECTION_DICT as direction_dict
 
 
 class Creature(pygame.sprite.Sprite):

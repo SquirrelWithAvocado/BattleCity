@@ -1,5 +1,5 @@
 import pygame
-from creatures.creature import Creature
+from game_objects.creatures.creature import Creature
 
 
 class Eagle(Creature):

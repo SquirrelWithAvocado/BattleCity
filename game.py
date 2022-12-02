@@ -2,48 +2,63 @@ import sys
 
 import pygame
 from pygame.locals import *
+
+from UI import Cursor
 from battlefield import Battlefield
 from UI.button import Button
 from UI.mouse_handler import MouseHandler
 from UI.text import Text
-from constants import SCREEN_SIZE, KEYS_DICT, MENU_BUTTON_SIZE
+from extra_modules.sound_config import SOUND_PARAMS
+from extra_modules.constants import SCREEN_SIZE, KEYS_DICT, MENU_BUTTON_SIZE
+from settings_menu import SettingsMenu
 
 
 class Game:
     """Single-window with multiple scenes."""
 
     def __init__(self):
+        pygame.mixer.pre_init(44100, -16, 1, 512)
         pygame.init()
 
-        self.clock = pygame.time.Clock()
         self.screen = pygame.display.set_mode(SCREEN_SIZE)
         self.running = True
 
-        pygame.mixer.music.load('sound_effects\main theme.mp3')
+        self.cursor = Cursor()
+        self.holes = []
 
+        pygame.mixer.music.load(r'sound_effects\main theme.mp3')
+
+        self.load_background()
         self.set_decor()
+        self.buttons_list = []
+        self.mouse_handler = MouseHandler(self.buttons_list, self.screen, self.holes)
 
         self.image = self.load_background()
 
-        self.buttons_list = []
         self.construct_buttons()
-
-        self.mouse_handler = MouseHandler(self.buttons_list, self.screen)
-
-        self.load_background()
 
     def construct_buttons(self):
         self.buttons_list.append(
             Button(
-                (SCREEN_SIZE[0] // 2 - 100, SCREEN_SIZE[1] // 2 - 100),
+                (SCREEN_SIZE[0] // 2 - 100, SCREEN_SIZE[1] // 2 - 200),
                 MENU_BUTTON_SIZE,
                 "Play",
                 on_click=lambda x: Battlefield(self.screen, 1).run()
             )
         )
+
         self.buttons_list.append(
             Button(
-                (SCREEN_SIZE[0] // 2 - 100, SCREEN_SIZE[1] // 2 - 100 + 120),
+                (SCREEN_SIZE[0] // 2 - 100, SCREEN_SIZE[1] // 2 - 200 + 120),
+                MENU_BUTTON_SIZE,
+                "Settings",
+                on_click=lambda x: SettingsMenu(self.screen, self.image, self.cursor).run()
+            )
+        )
+
+        self.buttons_list.append(
+            Button(
+                (SCREEN_SIZE[0] // 2 - 100, SCREEN_SIZE[1] // 2 - 200 + 240),
                 MENU_BUTTON_SIZE,
                 "Quit",
                 on_click=lambda x: sys.exit()
@@ -65,6 +80,7 @@ class Game:
 
     def run(self):
         """Main event loop."""
+        pygame.mixer.music.set_volume(min(SOUND_PARAMS['general'], SOUND_PARAMS['music']))
         pygame.mixer.music.play(-1)
         while self.running:
             for event in pygame.event.get():
@@ -74,17 +90,25 @@ class Game:
                     if event.key in KEYS_DICT:
                         self.do_shortcut(event)
 
-                self.screen.blit(self.image, self.screen.get_rect())
-
-                for button in self.buttons_list:
-                    button.draw(self.screen)
-
                 self.mouse_handler.mouse_event(event.type, pygame.mouse.get_pos())
 
-                pygame.display.update()
-                self.clock.tick(30)
+            self.screen.blit(self.image, self.screen.get_rect())
+
+            self.draw_ui()
+
+            pygame.display.update()
 
         pygame.quit()
+
+    def draw_ui(self):
+        for button in self.buttons_list:
+            if button.is_active:
+                button.draw(self.screen)
+
+        for hole in self.holes:
+            hole.draw()
+
+        self.cursor.update(pygame.mouse.get_pos(), self.screen)
 
     def type_text(self, text, coord):
         text = Text(text, coord, fontsize=64, color='white')

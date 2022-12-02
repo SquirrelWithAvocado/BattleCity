@@ -29,12 +29,13 @@ class Bonus:
 
 class SpeedBonus(Bonus):
     def __init__(self, surface, player):
-        super().__init__(surface, player, r'images\bonuses\speed_bonus.png')
+        super().__init__(surface, player, r'images/bonuses/speed_bonus.png')
 
     def on_pick(self):
         if not self.picked:
             self.player.speed += 2
             self.picked = True
+            on_pick_play()
         else:
             if self.timer <= 0:
                 self.player.speed = self.player.nominal_speed
@@ -44,12 +45,13 @@ class SpeedBonus(Bonus):
 
 class HeartBonus(Bonus):
     def __init__(self, surface, player):
-        super().__init__(surface, player, r'images\bonuses\heart.png')
+        super().__init__(surface, player, r'images/bonuses/heart.png')
 
     def on_pick(self):
         if not self.picked:
             self.player.hearts += 1
             self.picked = True
+            on_pick_play()
 
     def update(self):
         if not self.picked:
@@ -58,13 +60,20 @@ class HeartBonus(Bonus):
 
 class PowerShootingBonus(Bonus):
     def __init__(self, surface, player):
-        super().__init__(surface, player, r'images\bonuses\projectile.png')
+        super().__init__(surface, player, r'images/bonuses/projectile.png')
 
     def on_pick(self):
         if not self.picked:
             self.player.super_shooting_times = 2
             self.picked = True
+            on_pick_play()
 
     def update(self):
         if not self.picked:
             self.surface.blit(self.image, self.rect)
+
+
+def on_pick_play():
+    pick_sound = pygame.mixer.Sound(r'sound_effects\bonus_pick_sound.mp3')
+    pick_sound.set_volume(0.3)
+    pick_sound.play()

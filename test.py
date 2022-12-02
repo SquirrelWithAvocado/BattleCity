@@ -3,8 +3,8 @@ import pygame.event
 
 from TileMap import Spriteset
 from battlefield import Battlefield
-from bullet import Bullet
-from creatures import Creature
+from game_objects.bullet import Bullet
+from game_objects.creatures import Creature
 
 
 def calculate_pos(obj):

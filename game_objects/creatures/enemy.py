@@ -1,19 +1,19 @@
-import pygame
 import random
 
-from bullet import Bullet
-from constants import (
+import pygame.mixer
+
+from extra_modules import parse_animation
+from game_objects.bullet import Bullet
+from extra_modules.constants import (
     GENERAL_ROTATE_ANGLES as rotate_angles,
-    ENEMY_SPEED,
     DIRECTIONS_LIST as directions,
-    DIRECTION_DICT as direction_dict,
     LIGHT_TANK_STAT,
     RAPID_TANK_STAT,
     SHOOTER_TANK_STAT,
     HEAVY_TANK_STAT
 )
-from creatures.EnemyType import EnemyType
-from creatures.creature import Creature
+from game_objects.creatures.EnemyType import EnemyType
+from game_objects.creatures.creature import Creature
 
 
 class Enemy(Creature):
@@ -35,11 +35,14 @@ class Enemy(Creature):
         self.enemies = enemies
         self.damage = 1
 
+        self.health, self.speed, self.shoot_delay, self.img_path, self.points, self.anim_path = self.choose_class()
+
+        self.go_animation = parse_animation(self.anim_path)
+        self.go_animation_counter = 0
+
         self.respawn_time = respawn_time
         self.cur_time = 0
         self.period = self.respawn_time / 8
-
-        self.health, self.speed, self.shoot_delay, self.img_path, self.points = self.choose_class()
 
         super().__init__(
             len(enemies),
@@ -76,6 +79,13 @@ class Enemy(Creature):
 
         self.change_direction()
         self.rect.move_ip(self.direction[0] * self.speed, self.direction[1] * self.speed)
+
+        self.go_animation_counter = (self.go_animation_counter + 1) % len(self.go_animation)
+        self.image = self.go_animation[self.go_animation_counter]
+
+        self.angle = 0
+        self.process_rotate_coords()
+
         x, y = self.process_rotate_coords()
         self.rotate(rotate_angles[x, y])
 
@@ -171,10 +181,16 @@ class Enemy(Creature):
                 False
             )
         )
+        shoot_sound = pygame.mixer.Sound(r'sound_effects\tank_shoot.mp3')
+        shoot_sound.set_volume(0.1)
+        shoot_sound.play()
 
     def update(self):
         if self.health <= 0:
             self.is_alive = False
+            shot_sound = pygame.mixer.Sound(r'sound_effects\crash.mp3')
+            shot_sound.set_volume(0.1)
+            shot_sound.play()
 
         self.direction = [int(self.direction[0]), int(self.direction[1])]
         self.cur_time += 1

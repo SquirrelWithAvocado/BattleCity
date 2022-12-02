@@ -11,7 +11,7 @@ KEYS_DICT = {
     K_g: "Battlefield(self.screen, 1).run()"
 }
 
-
+# in degrees
 ROTATE_ANGLES = {
     K_w: 0,
     K_s: 180,
@@ -60,10 +60,29 @@ DIRECTION_DICT = {
 }
 
 # health, speed, shoot_delay, path, points
-LIGHT_TANK_STAT = 1, 1, 30, r'images\enemy_tanks\enemy_tank_light.png', 100
-RAPID_TANK_STAT = 1, 2, 30, r'images\enemy_tanks\enemy_tank_rapid.png', 200
-SHOOTER_TANK_STAT = 1, 1, 45, r'images\enemy_tanks\enemy_tank_shooter.png', 300
-HEAVY_TANK_STAT = 4, 1, 30, r'images\enemy_tanks\enemy_tank_heavy.png', 400
+LIGHT_TANK_STAT = (
+    1, 1, 30,
+    r'images\enemy_tanks\enemy_tank_light.png', 100,
+    r'images\enemy animation\enemy_tank_light_animation.png'
+)
+
+RAPID_TANK_STAT = (
+    1, 2, 30,
+    r'images\enemy_tanks\enemy_tank_rapid.png', 200,
+    r'images\enemy animation\enemy_tank_rapid_animation.png'
+)
+
+SHOOTER_TANK_STAT = (
+    1, 1, 45,
+    r'images\enemy_tanks\enemy_tank_shooter.png', 300,
+    r'images\enemy animation\enemy_tank_shooter_animation.png'
+)
+
+HEAVY_TANK_STAT = (
+    4, 1, 30,
+    r'images\enemy_tanks\enemy_tank_heavy.png', 400,
+    r'images\enemy animation\enemy_tank_heavy_animation.png'
+)
 
 MENU_BUTTON_SIZE = (250, 80)
 
@@ -81,7 +100,5 @@ BLUE = (0, 0, 255)
 YELLOW = (255, 255, 0)
 CYAN = (0, 255, 255)
 MAGENTA = (255, 0, 255)
-
-ARLEKIN = (68,148,74)
 
 TILE_SIZE = 50

@@ -1,9 +1,9 @@
 import pygame
 from pygame.locals import *
-from bullet import Bullet
-from creatures.creature import Creature
-from constants import ROTATE_ANGLES as rotate_angles
-from animation_parsing_methods import parse_animation
+from game_objects.bullet import Bullet
+from game_objects.creatures.creature import Creature
+from extra_modules.constants import ROTATE_ANGLES as rotate_angles
+from extra_modules.animation_parsing_methods import parse_animation
 
 
 class Player(Creature):
@@ -109,6 +109,10 @@ class Player(Creature):
                 self.super_shooting_times -= 1
                 super_shooting = True
 
+            shoot_sound = pygame.mixer.Sound(r'sound_effects/player_shoot.mp3')
+            shoot_sound.set_volume(0.1)
+            shoot_sound.play()
+
             return Bullet(
                 self,
                 coords,
@@ -121,6 +125,7 @@ class Player(Creature):
                 self.eagle,
                 super_shooting
             )
+
 
     def respawn(self):
         self.hearts -= 1
